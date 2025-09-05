@@ -122,7 +122,7 @@ int conocidos = 0, desconocidos = 0;
     int max_conocido = 0;
     long suma_conocidos = 0;
 
-    // Contar y recolectar info de conocidos
+    // recolectar info de conocidos
     for (int i = 0; i < n; i++) {
         if (destinos[i].es_conocido) {
             conocidos++;
@@ -133,7 +133,6 @@ int conocidos = 0, desconocidos = 0;
         }
     }
 
-    // Regla 5: mayoría desconocidos => uno al azar entre los desconocidos
     if (desconocidos > conocidos) {
         // Contar cuántos índices desconocidos hay y elegir uno aleatorio
         int *idx = (int *)malloc(desconocidos * sizeof(int));
@@ -146,13 +145,11 @@ int conocidos = 0, desconocidos = 0;
         return elegido;
     }
 
-    // Media basada SOLO en conocidos (evita sesgo por desconocidos más grandes)
     double media = (conocidos > 0) ? (double)suma_conocidos / (double)conocidos : 0.0;
 
     // Valor representativo para desconocidos (Regla 4: mayores que cualquier conocido)
     int valor_desconocido = max_conocido + 1;
 
-    // Buscar el índice con distancia mínima a la media (tie-break: menor índice)
     int indice_elegido = 0;
     double mejor_dist = 0.0;
     for (int i = 0; i < n; i++) {
