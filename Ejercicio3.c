@@ -96,6 +96,7 @@ int parsear_token(const char *tok, Destino *d) {
  *             esté más cercano a la media. En caso de empate, define
  *             una política simple, p. ej., el de menor índice.
  */
+
 int elegir_destino(const Destino *destinos, int n) {
     // Escribe aquí tu función
 
@@ -117,8 +118,50 @@ int elegir_destino(const Destino *destinos, int n) {
 
     // 4) Hallar el índice con distancia mínima a la media
     //      - manejar empates de forma determinista (p. ej., menor índice)
+int conocidos = 0, desconocidos = 0;
+    int max_conocido = 0;
+    long suma_conocidos = 0;
 
-    return -1; // Placeholder: reemplaza por el índice elegido
+    // recolectar info de conocidos
+    for (int i = 0; i < n; i++) {
+        if (destinos[i].es_conocido) {
+            conocidos++;
+            suma_conocidos += destinos[i].costo;
+            if (destinos[i].costo > max_conocido) max_conocido = destinos[i].costo;
+        } else {
+            desconocidos++;
+        }
+    }
+
+    if (desconocidos > conocidos) {
+        // Contar cuántos índices desconocidos hay y elegir uno aleatorio
+        int *idx = (int *)malloc(desconocidos * sizeof(int));
+        if (!idx) return 0; // fallback simple
+        int k = 0;
+        for (int i = 0; i < n; i++)
+            if (!destinos[i].es_conocido) idx[k++] = i;
+        int elegido = idx[rand() % desconocidos];
+        free(idx);
+        return elegido;
+    }
+
+    double media = (conocidos > 0) ? (double)suma_conocidos / (double)conocidos : 0.0;
+
+    // Valor representativo para desconocidos (Regla 4: mayores que cualquier conocido)
+    int valor_desconocido = max_conocido + 1;
+
+    int indice_elegido = 0;
+    double mejor_dist = 0.0;
+    for (int i = 0; i < n; i++) {
+        int valor = destinos[i].es_conocido ? destinos[i].costo : valor_desconocido;
+        double dist = (valor > media) ? (valor - media) : (media - valor);
+        if (i == 0 || dist < mejor_dist || (dist == mejor_dist && i < indice_elegido)) {
+            mejor_dist = dist;
+            indice_elegido = i;
+        }
+    }
+
+    return indice_elegido;
 }
 
 int main(void) {

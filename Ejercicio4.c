@@ -1,71 +1,79 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/*
- Formato de entrada:
-   m
-   t1 v1
-   t2 v2
-   ...
-   tm vm
-
- Donde:
-   ti ∈ {0,1}  (0=tuerca, 1=tornillo)
-   vi es el "tamaño" (entero) de esa pieza
-
- El programa separa las piezas en dos arreglos (tuercas y tornillos).
- Requisito: debe haber la misma cantidad de tuercas que de tornillos.
-*/
-
-/* 
- * Prototipos sugeridos de funciones auxiliares
- * --------------------------------------------
- * Estas NO están implementadas, solo son guías:
- *
- * int partir_tuercas(int tuercas[], int bajo, int alto, int tornilloPivote);
- *   -> Reorganiza las tuercas comparándolas con un tornillo pivote.
- *
- * int partir_tornillos(int tornillos[], int bajo, int alto, int tuercaPivote);
- *   -> Reorganiza los tornillos comparándolos con una tuerca pivote.
- *
- * La idea: usarlas de forma recursiva, estilo quicksort.
- */
-
-/*
- * FUNCIÓN PRINCIPAL A IMPLEMENTAR
- *
- * Objetivo: reordenar ambos arreglos (tuercas y tornillos) de manera que
- *           al final ambos queden en el mismo orden.
- *
- * Reglas:
- * - Solo se permite comparar tuerca vs tornillo.
- * - No está permitido comparar tuerca vs tuerca ni tornillo vs tornillo.
- *
- */
-void emparejar_tuercas_y_tornillos(int tuercas[], int tornillos[], int n) {
-    // Escribe aquí tu función
-    //
-    // Sugerencia: define una función recursiva como:
-    // void emparejar_recursivo(int tuercas[], int tornillos[], int bajo, int alto);
-    //
-    // Dentro de ella puedes llamar a:
-    //   int indicePivote = partir_tuercas(tuercas, bajo, alto, tornillos[alto]);
-    //   partir_tornillos(tornillos, bajo, alto, tuercas[indicePivote]);
-    //
-    // Y luego hacer llamadas recursivas en los subarreglos.
+static inline int comparar_tuerca_con_tornillo(int tuerca, int tornillo) {
+    if (tuerca < tornillo) return -1;
+    if (tuerca > tornillo) return  1;
+    return 0;
 }
 
-/* Imprime un arreglo lineal */
+static inline void intercambiar(int *a, int *b) {
+    int t = *a; *a = *b; *b = t;
+}
+
+int partir_tuercas(int tuercas[], int bajo, int alto, int tornilloPivote) {
+    int pos = bajo;
+
+    for (int i = bajo; i <= alto; ++i) {
+        int cmp = comparar_tuerca_con_tornillo(tuercas[i], tornilloPivote);
+        if (cmp == 0) { intercambiar(&tuercas[i], &tuercas[alto]); break; }
+    }
+
+    for (int i = bajo; i < alto; ++i) {
+        int cmp = comparar_tuerca_con_tornillo(tuercas[i], tornilloPivote);
+        if (cmp < 0) {
+            intercambiar(&tuercas[store], &tuercas[i]);
+            pos++;
+        }
+    }
+    
+    intercambiar(&tuercas[store], &tuercas[alto]);
+    return pos;
+}
+
+int partir_tornillos(int tornillos[], int bajo, int alto, int tuercaPivote) {
+    int pos = bajo;
+
+    for (int i = bajo; i <= alto; ++i) {
+        int cmp = comparar_tuerca_con_tornillo(tuercaPivote, tornillos[i]);
+        if (cmp == 0) { intercambiar(&tornillos[i], &tornillos[alto]); break; }
+    }
+
+    for (int i = bajo; i < alto; ++i) {
+        int cmp = comparar_tuerca_con_tornillo(tuercaPivote, tornillos[i]);
+        if (cmp > 0) {  /* equivalente a tornillo < pivote */
+            intercambiar(&tornillos[store], &tornillos[i]);
+            pos++;
+        }
+    }
+    intercambiar(&tornillos[store], &tornillos[alto]);
+    return pos;
+}
+
+static void emparejar_recursivo(int tuercas[], int tornillos[], int bajo, int alto) {
+    if (bajo >= alto) return;
+
+    int idxPivot = partir_tuercas(tuercas, bajo, alto, tornillos[alto]);
+
+    partir_tornillos(tornillos, bajo, alto, tuercas[idxPivot]);
+
+    emparejar_recursivo(tuercas, tornillos, bajo, idxPivot - 1);
+    emparejar_recursivo(tuercas, tornillos, idxPivot + 1, alto);
+}
+
+void emparejar_tuercas_y_tornillos(int tuercas[], int tornillos[], int n) {
+    if (n <= 1) return;
+    emparejar_recursivo(tuercas, tornillos, 0, n - 1);
+}
+
 void imprimir_arreglo(const char *etiqueta, int arr[], int n) {
     printf("%s: ", etiqueta);
-    for (int i = 0; i < n; i++) {
-        printf("%d ", arr[i]);
-    }
+    for (int i = 0; i < n; i++) printf("%d ", arr[i]);
     printf("\n");
 }
 
 int main(void) {
-    int m;  // número total de pares provistos en la entrada
+    int m;  
     if (scanf("%d", &m) != 1 || m <= 0) {
         fprintf(stderr, "Error: m inválido.\n");
         return 1;
@@ -106,12 +114,10 @@ int main(void) {
         return 1;
     }
 
-    int n = n_tuercas; // número de parejas
+    int n = n_tuercas; 
 
-    // Llamada a la función a implementar
     emparejar_tuercas_y_tornillos(tuercas, tornillos, n);
 
-    // Mostrar resultados como dos arreglos lineales
     imprimir_arreglo("Tuercas", tuercas, n);
     imprimir_arreglo("Tornillos", tornillos, n);
 
