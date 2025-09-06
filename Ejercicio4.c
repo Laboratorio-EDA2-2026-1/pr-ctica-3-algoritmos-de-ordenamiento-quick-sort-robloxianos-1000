@@ -1,14 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static inline int comparar_tuerca_con_tornillo(int tuerca, int tornillo) {
+int comparar_tuerca_con_tornillo(int tuerca, int tornillo) {
     if (tuerca < tornillo) return -1;
     if (tuerca > tornillo) return  1;
     return 0;
 }
 
-static inline void intercambiar(int *a, int *b) {
-    int t = *a; *a = *b; *b = t;
+void intercambiar(int *a, int *b) {
+    int t = *a;
+    *a = *b;
+    *b = t;
 }
 
 int partir_tuercas(int tuercas[], int bajo, int alto, int tornilloPivote) {
@@ -16,18 +18,21 @@ int partir_tuercas(int tuercas[], int bajo, int alto, int tornilloPivote) {
 
     for (int i = bajo; i <= alto; ++i) {
         int cmp = comparar_tuerca_con_tornillo(tuercas[i], tornilloPivote);
-        if (cmp == 0) { intercambiar(&tuercas[i], &tuercas[alto]); break; }
+        if (cmp == 0) {
+            intercambiar(&tuercas[i], &tuercas[alto]);
+            break;
+        }
     }
 
     for (int i = bajo; i < alto; ++i) {
         int cmp = comparar_tuerca_con_tornillo(tuercas[i], tornilloPivote);
         if (cmp < 0) {
-            intercambiar(&tuercas[store], &tuercas[i]);
+            intercambiar(&tuercas[pos], &tuercas[i]);
             pos++;
         }
     }
     
-    intercambiar(&tuercas[store], &tuercas[alto]);
+    intercambiar(&tuercas[pos], &tuercas[alto]);
     return pos;
 }
 
@@ -36,21 +41,24 @@ int partir_tornillos(int tornillos[], int bajo, int alto, int tuercaPivote) {
 
     for (int i = bajo; i <= alto; ++i) {
         int cmp = comparar_tuerca_con_tornillo(tuercaPivote, tornillos[i]);
-        if (cmp == 0) { intercambiar(&tornillos[i], &tornillos[alto]); break; }
+        if (cmp == 0) {
+            intercambiar(&tornillos[i], &tornillos[alto]);
+            break;
+        }
     }
 
     for (int i = bajo; i < alto; ++i) {
         int cmp = comparar_tuerca_con_tornillo(tuercaPivote, tornillos[i]);
-        if (cmp > 0) {  /* equivalente a tornillo < pivote */
-            intercambiar(&tornillos[store], &tornillos[i]);
+        if (cmp > 0) {  
+            intercambiar(&tornillos[pos], &tornillos[i]);
             pos++;
         }
     }
-    intercambiar(&tornillos[store], &tornillos[alto]);
+    intercambiar(&tornillos[pos], &tornillos[alto]);
     return pos;
 }
 
-static void emparejar_recursivo(int tuercas[], int tornillos[], int bajo, int alto) {
+void emparejar_recursivo(int tuercas[], int tornillos[], int bajo, int alto) {
     if (bajo >= alto) return;
 
     int idxPivot = partir_tuercas(tuercas, bajo, alto, tornillos[alto]);
@@ -96,9 +104,9 @@ int main(void) {
             free(tuercas); free(tornillos);
             return 1;
         }
-        if (tipo == 0) {           // tuerca
+        if (tipo == 0) {           
             tuercas[n_tuercas++] = valor;
-        } else if (tipo == 1) {    // tornillo
+        } else if (tipo == 1) {    
             tornillos[n_tornillos++] = valor;
         } else {
             fprintf(stderr, "Error: tipo debe ser 0 (tuerca) o 1 (tornillo).\n");
