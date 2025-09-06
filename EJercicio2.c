@@ -1,120 +1,150 @@
 #include <stdio.h>
-#include <stdlib.h>
 
-/*
-  Ejercicio: QuickSort con pivote = promedio de los valores en el subarreglo.
 
-  Requisitos:
-    - El pivote es el promedio (double) de los valores del segmento actual.
-    - El pivote puede NO pertenecer al arreglo.
-    - En el arreglo de salida solo pueden aparecer valores del arreglo original
-      (NO se inserta el pivote como elemento).
-
-  Sugerencia de diseño (no obligatorio):
-    - calcular_promedio_segmento(arr, bajo, alto) -> double
-    - particion_por_promedio(arr, bajo, alto, pivote) -> índice final (int)
-      (reorganizar comparando cada arr[i] con el pivote)
-    - quicksort_promedio(arr, bajo, alto) -> recursivo
-*/
-
-static inline void intercambiar(int *a, int *b) {
-    int t = *a; *a = *b; *b = t;
+void intercambiar(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
 }
 
-/* Devuelve el promedio (double) de arr[bajo..alto] */
-double calcular_promedio_segmento(int arr[], int bajo, int alto) {
-    // Escribe aquí tu función
-    // Pista:
-    //   - Acumula en (long long) o (double) para evitar overflow
-    //   - Devuelve suma / cantidad como double
-    return 0.0; // placeholder
-}
-
-/*
-  Partición usando pivote = promedio.
-  Objetivo:
-    - Reordenar in-place arr[bajo..alto] comparando cada elemento con "pivote".
-    - Colocar a la izquierda los elementos < pivote
-      y a la derecha los elementos >= pivote (o la convención que elijas).
-    - NO insertar el pivote en el arreglo (solo se usa para decidir posiciones).
+double calcularPromedio(int arr[], int low, int high) {
+    double suma = 0;
+    int count = high - low + 1;
     
-  Nota:
-    - Define y documenta tu convención de partición para manejar duplicados:
-      por ejemplo, (< pivote) a la izquierda y (>= pivote) a la derecha.
-    - Asegura progreso (evitar ciclos infinitos cuando todos son iguales).
-*/
-int particion_por_promedio(int arr[], int bajo, int alto, double pivote) {
-    // Escribe aquí tu función
-    // Puedes implementar un esquema tipo Hoare o Lomuto pero guiado por pivot double.
-    // Recuerda: NO escribas 'pivote' dentro del arreglo; solo compáralo contra arr[i].
-    return -1; // placeholder
+    for (int i = low; i <= high; i++) {
+        suma += arr[i];
+    }
+    
+    
+    return suma / count;
 }
 
-/*
-  QuickSort con pivote = promedio:
-    - Caso base: si bajo >= alto, terminar.
-    - Paso:
-        1) pivote = promedio de arr[bajo..alto]
-        2) k = particion_por_promedio(arr, bajo, alto, pivote)
-        3) Llamar recursivamente a los segmentos definidos por k
-*/
-void quicksort_promedio(int arr[], int bajo, int alto) {
-    // Escribe aquí tu función
+int partition(int arr[], int low, int high, double pivot) {
+    int left = low;
+    int right = high;
+    
+  
+    
+    
+    
+    while (left <= right) {
+
+        while (left <= high && arr[left] < pivot) {
+            left++;
+        }
+        
+
+        while (right >= low && arr[right] >= pivot) {
+            right--;
+        }
+        
+        if (left < right) {
+            intercambiar(&arr[left], &arr[right]);
+            left++;
+            right--;
+        }
+    }
+   
+    return left;
 }
 
-/* Utilidad para imprimir un arreglo */
-void imprimir_arreglo(int arr[], int n) {
-    for (int i = 0; i < n; i++) {
-        if (i) printf(" ");
-        printf("%d", arr[i]);
+void quickSortPromedio(int arr[], int low, int high) {
+    if (low >= high) {
+        return; 
+    }
+    
+    int large=high+1;
+    int privote=arr[0];
+    int sameValor;
+    
+    
+    
+    for(int k=0; k<large; k++){
+    if (privote == arr[k]){
+    sameValor++;
+    }
+    }
+    if (sameValor==large){
+    printf("ya está arreglado: ");
+    for (int i = 0; i < large; i++) {
+        printf("%d ", arr[i]);
+    
+    
+    }
+    
+    return;
+    }
+    
+    
+    
+    
+    
+    double pivot = calcularPromedio(arr, low, high);
+    
+    
+    int partitionIndex = partition(arr, low, high, pivot);
+    
+    
+    quickSortPromedio(arr, low, partitionIndex - 1);
+    quickSortPromedio(arr, partitionIndex, high);
+}
+
+void printArray(int arr[], int size) {
+    for (int i = 0; i < size; i++) {
+        printf("%d ", arr[i]);
     }
     printf("\n");
 }
 
-int main(void) {
-    int n;
-    if (scanf("%d", &n) != 1 || n <= 0) {
-        fprintf(stderr, "Error: n inválido.\n");
-        return 1;
-    }
-
-    int *arr = (int *)malloc(n * sizeof(int));
-    if (!arr) {
-        fprintf(stderr, "Error: memoria insuficiente.\n");
-        return 1;
-    }
-
-    for (int i = 0; i < n; i++) {
-        if (scanf("%d", &arr[i]) != 1) {
-            fprintf(stderr, "Error: entrada inválida en la posición %d.\n", i + 1);
-            free(arr);
-            return 1;
-        }
-    }
-
-    // Antes
-    // printf("Antes:  "); imprimir_arreglo(arr, n);
-
-    quicksort_promedio(arr, 0, n - 1);
-
-    // Después
-    imprimir_arreglo(arr, n);
-
-    free(arr);
+int main() {
+    
+    int arr1[] = {64, 34, 25, 12, 22, 11, 90, 88, 76, 50};
+    int n1 = sizeof(arr1) / sizeof(arr1[0]);
+    int m=sizeof(arr1[0]);
+    
+    
+    
+    printf("original: ");
+    printArray(arr1, n1);
+    
+    quickSortPromedio(arr1, 0, n1 - 1);
+    
+    printf("ordenado: ");
+    printArray(arr1, n1);
+    printf("\n");
+    
+    int arr2[] = {5,3,2};
+    int n2 = sizeof(arr2) / sizeof(arr2[0]);
+    
+    
+    
+    printf("original: ");
+    printArray(arr2, n2);
+    
+    quickSortPromedio(arr2, 0, n2 - 1);
+    
+    double promedio1 = calcularPromedio(arr2, 0, n2 - 1);
+    printf("Promedio con decimales: %.2f\n", promedio1);
+    
+    
+    
+    printf("ordenado: ");
+    printArray(arr2, n2);
+    printf("\n");
+    
+    printf("elemtnos iguales: \n");
+    int arr3[] = {2, 2, 2};
+    int n3 = sizeof(arr3) / sizeof(arr3[0]);
+    
+    
+    printArray(arr3, n3);
+    
+    double promedio = calcularPromedio(arr3, 0, n3 - 1);
+    printf("Promedio: %.2f\n", promedio);
+    
+    quickSortPromedio(arr3, 0, n3 - 1);
+    
+    
+    
     return 0;
 }
-
-/*
-Ejemplo de uso:
-Entrada:
-8
-5 2 9 2 7 10 3 6
-
-Salida esperada:
-2 2 3 5 6 7 9 10
-
-Notas de implementación:
-- La media puede ser no entera; compárala como double contra enteros.
-- Define claramente qué lado incluye los == pivote para asegurar terminación.
-- No insertes el pivote en el arreglo (restricción).
-*/
